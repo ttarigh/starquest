@@ -30,6 +30,11 @@ A shot management and prompt generation tool for external partners. This applica
 4. **Open your browser:**
    Navigate to `http://localhost:3000`
 
+5. **Start with your own data:**
+   - The application starts completely empty
+   - Add your own shots or import your CSV data
+   - All data is stored locally in your `data/` directory
+
 ## Usage
 
 ### Managing Shots
@@ -100,7 +105,8 @@ starquest_github/
 ## Data Storage
 
 - All shot data is stored locally in `data/shots.json`
-- The `data/` directory is created automatically
+- The `data/` directory is created automatically when you first add data
+- The application starts completely empty - no sample data is included
 - Make regular backups by exporting to CSV
 - No cloud storage or external dependencies
 

@@ -1,40 +1,9 @@
 const { getShots, saveShots, updateShot, addShot, deleteShot } = require('../../lib/localStorage');
 
-// Initialize with some sample shots if empty
-const initialShots = [
-  {
-    id: 'shot_1',
-    title: 'Opening Scene: Dance Studio Setup',
-    character: 'Main Character',
-    description: 'Wide establishing shot of the dance studio with mirrors and barres',
-    prompt: '',
-    caption: '',
-    status: 'prompt not yet generated'
-  },
-  {
-    id: 'shot_2', 
-    title: 'Interview: Pre-Competition Nerves',
-    character: 'Brunette Girl',
-    description: 'Close-up talking head shot expressing nervousness about upcoming performance',
-    prompt: '',
-    caption: '',
-    status: 'prompt not yet generated'
-  }
-];
-
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      let shots = getShots();
-      
-      // Initialize with sample data if empty
-      if (shots.length === 0) {
-        const success = saveShots(initialShots);
-        if (success) {
-          shots = initialShots;
-        }
-      }
-      
+      const shots = getShots();
       res.status(200).json(shots);
     } catch (error) {
       console.error('Error fetching shots:', error);

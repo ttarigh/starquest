@@ -32,9 +32,8 @@ describe('/api/shots', () => {
       expect(JSON.parse(res._getData())).toEqual(mockShots)
     })
 
-    it('should initialize with default shots when none exist', async () => {
+    it('should return empty array when no shots exist', async () => {
       getShots.mockReturnValue([])
-      saveShots.mockReturnValue(true)
 
       const { req, res } = createMocks({
         method: 'GET',
@@ -43,12 +42,7 @@ describe('/api/shots', () => {
       await handler(req, res)
 
       expect(res._getStatusCode()).toBe(200)
-      expect(saveShots).toHaveBeenCalled()
-      
-      // Check that initial shots were created
-      const savedData = saveShots.mock.calls[0][0]
-      expect(Array.isArray(savedData)).toBe(true)
-      expect(savedData.length).toBeGreaterThan(0)
+      expect(JSON.parse(res._getData())).toEqual([])
     })
 
     it('should handle errors gracefully', async () => {

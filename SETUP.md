@@ -38,6 +38,13 @@ npm run dev
 
 The application will be available at `http://localhost:3000`
 
+### 4. Start with Your Own Data
+
+The application starts completely empty. You can:
+- Add shots manually using the "Add New Shot" button
+- Import your existing CSV data using the "Import CSV" feature
+- All data is stored locally in the `data/` directory
+
 ## Usage
 
 ### Adding Shots

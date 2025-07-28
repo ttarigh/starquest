@@ -27,6 +27,8 @@ export default function Home() {
   const [showImportArea, setShowImportArea] = useState(false);
   const [editingVideoLink, setEditingVideoLink] = useState(null);
   const [videoLink, setVideoLink] = useState('');
+  const [editingPrompt, setEditingPrompt] = useState(null);
+  const [promptText, setPromptText] = useState('');
   const [importStatus, setImportStatus] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [editingCaption, setEditingCaption] = useState(null);
@@ -245,6 +247,30 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error saving caption:', error);
+    }
+  };
+
+  const savePrompt = async (shotId, prompt) => {
+    try {
+      const response = await fetch('/api/shots', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shotId,
+          updates: { prompt }
+        }),
+      });
+
+      if (response.ok) {
+        const updatedShots = await response.json();
+        setShots(updatedShots);
+      } else {
+        console.error('Failed to save prompt');
+      }
+    } catch (error) {
+      console.error('Error saving prompt:', error);
     }
   };
 
@@ -669,16 +695,50 @@ export default function Home() {
                 {showPrompt === shot.id && shot.prompt && (
                   <div className="px-4 pb-3">
                     <div className="text-xs text-gray-700 p-2 bg-gray-100 border-l-2 border-gray-400 ml-0">
-                      {shot.prompt}
-                      <button 
-                        className="ml-3 text-xs text-blue-600 hover:text-blue-800 underline"
-                        onClick={() => {
-                          navigator.clipboard.writeText(shot.prompt);
-                          alert('Prompt copied to clipboard');
-                        }}
-                      >
-                        copy
-                      </button>
+                      {editingPrompt === shot.id ? (
+                        <textarea
+                          value={promptText}
+                          onChange={(e) => setPromptText(e.target.value)}
+                          className="w-full text-xs bg-gray-100 border-l-2 border-gray-400 p-2 focus:outline-none resize-none"
+                          rows={Math.max(3, shot.prompt.split('\n').length)}
+                          placeholder="Edit prompt..."
+                          onBlur={() => {
+                            if (promptText.trim() !== shot.prompt) {
+                              savePrompt(shot.id, promptText.trim());
+                            }
+                            setEditingPrompt(null);
+                            setPromptText('');
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              e.target.blur();
+                            }
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <div 
+                          onClick={() => {
+                            setEditingPrompt(shot.id);
+                            setPromptText(shot.prompt);
+                          }}
+                          className="cursor-text hover:bg-gray-200 transition-colors p-1 -m-1 rounded"
+                        >
+                          {shot.prompt}
+                        </div>
+                      )}
+                      <div className="mt-2 space-x-2">
+                        <button 
+                          className="text-xs text-blue-600 hover:text-blue-800 underline"
+                          onClick={() => {
+                            navigator.clipboard.writeText(shot.prompt);
+                            alert('Prompt copied to clipboard');
+                          }}
+                        >
+                          copy
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

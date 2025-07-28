@@ -141,6 +141,8 @@ export default function PromptGenerator() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [editingPrompt, setEditingPrompt] = useState(false);
+  const [promptText, setPromptText] = useState('');
   const [formData, setFormData] = useState({
     shotStyle: [],
     setting: [],
@@ -214,6 +216,33 @@ export default function PromptGenerator() {
 
   const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const savePrompt = async (prompt) => {
+    if (!shot) return;
+
+    try {
+      const response = await fetch('/api/shots', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shotId: shot.id,
+          updates: { prompt }
+        }),
+      });
+
+      if (response.ok) {
+        setGeneratedPrompt(prompt);
+        setEditingPrompt(false);
+        setPromptText('');
+      } else {
+        console.error('Failed to save prompt');
+      }
+    } catch (error) {
+      console.error('Error saving prompt:', error);
+    }
   };
 
   if (loading) {
@@ -348,7 +377,39 @@ export default function PromptGenerator() {
             {generatedPrompt ? (
               <div className="space-y-4">
                 <div className="border border-gray-300 p-4 bg-gray-50">
-                  <p className="text-xs leading-relaxed">{generatedPrompt}</p>
+                  {editingPrompt ? (
+                    <textarea
+                      value={promptText}
+                      onChange={(e) => setPromptText(e.target.value)}
+                      className="w-full text-xs bg-gray-50 border border-gray-300 p-4 focus:outline-none resize-none leading-relaxed"
+                      rows={Math.max(4, generatedPrompt.split('\n').length)}
+                      placeholder="Edit prompt..."
+                      onBlur={() => {
+                        if (promptText.trim() !== generatedPrompt) {
+                          savePrompt(promptText.trim());
+                        }
+                        setEditingPrompt(false);
+                        setPromptText('');
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          e.target.blur();
+                        }
+                      }}
+                      autoFocus
+                    />
+                  ) : (
+                    <div 
+                      onClick={() => {
+                        setEditingPrompt(true);
+                        setPromptText(generatedPrompt);
+                      }}
+                      className="text-xs leading-relaxed cursor-text hover:bg-gray-100 transition-colors p-1 -m-1 rounded"
+                    >
+                      {generatedPrompt}
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex space-x-2">
